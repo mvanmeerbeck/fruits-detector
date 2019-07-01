@@ -1,0 +1,6 @@
+version: '3.7'
+services:
+    nginx:
+        image: tiangolo/nginx-rtmp
+        ports:
+            - 1935:1935
