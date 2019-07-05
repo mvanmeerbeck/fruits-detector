@@ -4,3 +4,8 @@ services:
         image: tiangolo/nginx-rtmp
         ports:
             - 1935:1935
+    train:
+        image: train
+        build:
+          context: ./
+          dockerfile: ./docker/TrainDockerfile
