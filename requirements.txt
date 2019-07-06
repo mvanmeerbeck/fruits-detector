@@ -2,3 +2,5 @@ Keras
 tensorflow
 Pillow
 scipy
+opencv-python
+pandas
