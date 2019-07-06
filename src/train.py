@@ -1,8 +1,9 @@
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Conv2D, MaxPooling2D, np
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
+import pandas as pd
 
 # dimensions of our images.
 img_width, img_height = 100, 100
@@ -60,13 +61,17 @@ train_generator = train_datagen.flow_from_directory(
     train_data_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
-    class_mode='categorical')
+    class_mode='categorical',
+    seed=42)
+
+np.save('class_indices', train_generator.class_indices)
 
 validation_generator = test_datagen.flow_from_directory(
     validation_data_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
-    class_mode='categorical')
+    class_mode='categorical',
+    seed=42)
 
 model.fit_generator(
     train_generator,
@@ -74,5 +79,38 @@ model.fit_generator(
     epochs=epochs,
     validation_data=validation_generator,
     validation_steps=nb_validation_samples // batch_size)
+
+test_generator = test_datagen.flow_from_directory(
+    validation_data_dir,
+    target_size=(img_width, img_height),
+    batch_size=1,
+    class_mode=None,
+    shuffle=False,
+    seed=42)
+
+test_generator.reset()
+
+pred = model.predict_generator(
+    test_generator,
+    steps=test_generator.n//test_generator.batch_size,
+    verbose=1)
+
+print(pred)
+
+predicted_class_indices = np.argmax(pred, axis=1)
+
+print(predicted_class_indices)
+
+labels = (train_generator.class_indices)
+print(labels)
+labels = dict((v, k) for k, v in labels.items())
+print(labels)
+predictions = [labels[k] for k in predicted_class_indices]
+
+print(predictions)
+
+filenames = test_generator.filenames
+results = pd.DataFrame({"Filename": filenames, "Predictions": predictions})
+results.to_csv("results.csv", index=False)
 
 model.save('model.h5')
