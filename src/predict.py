@@ -12,7 +12,7 @@ cap = cv2.VideoCapture(myrtmp_addr)
 model = load_model('model.h5')
 
 if isfile('class_indices.npy'):
-    labels = np.load('class_indices.npy').item()
+    labels = np.load('class_indices.npy', allow_pickle=True).item()
 
 labels = dict((v, k) for k, v in labels.items())
 
