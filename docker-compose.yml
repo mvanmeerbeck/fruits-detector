@@ -2,10 +2,15 @@ version: '3.7'
 services:
     nginx:
         image: tiangolo/nginx-rtmp
-        ports:
-            - 1935:1935
-    train:
-        image: train
         build:
           context: ./
-          dockerfile: ./docker/TrainDockerfile
+          dockerfile: ./docker/NginxRTMPDockerfile
+        ports:
+            - 1935:1935
+    api:
+        image: fruits-detector/api
+        build:
+            context: ./
+            dockerfile: ./docker/ApiDockerfile
+        ports:
+            - 5000:5000
