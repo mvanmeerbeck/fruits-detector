@@ -4,14 +4,21 @@ import numpy as np
 import cv2
 from keras.preprocessing.image import ImageDataGenerator
 import rootpath
+import pika
+import json
+from pymongo import MongoClient
+import time
 
-print(rootpath.detect())
 path = rootpath.detect()
 
-test_datagen = ImageDataGenerator(rescale=1. / 255)
-myrtmp_addr = "rtmp://nginx:1935/stream/test"
+client = MongoClient('mongodb://mongo:27017/')
+db = client.fruitsdetector
 
-cap = cv2.VideoCapture(myrtmp_addr)
+connection = pika.BlockingConnection(pika.URLParameters('amqp://guest:guest@rabbitmq:5672/%2F'))
+channel = connection.channel()
+
+channel.queue_declare(queue='streams', durable=True)
+print(' [*] Waiting for messages. To exit press CTRL+C')
 
 model = load_model(path + '/src/model.h5')
 
@@ -20,46 +27,53 @@ if isfile(path + '/src/class_indices.npy'):
 
 labels = dict((v, k) for k, v in labels.items())
 
-while(True):
-    ret, image = cap.read()
+def predict(ch, method, properties, body):
+    print(" [x] Received %r" % body, type(body))
+    message = json.loads(body)
 
-    image = cv2.resize(image,(100,100))
+    print(message, type(message))
 
-    image = image[...,::-1].astype(np.float64)
-    image = np.reshape(image,[1,100,100,3])
-    image = np.array(image, dtype=np.float64)
-    image = test_datagen.standardize(image)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    prediction = model.predict_classes(image)
-    predictions = [labels[k] for k in prediction]
+    stream = db.streams.find_one({'name': message['name']})
 
-    print(predictions)
-# When everything done, release the capture
-cap.release()
-cv2.destroyAllWindows()
+    print(stream)
 
+    if True == stream['play']:
+        test_datagen = ImageDataGenerator(rescale=1. / 255)
+        myrtmp_addr = "rtmp://nginx:1935/stream/" + message['name']
+        last_prediction = ''
 
+        cap = cv2.VideoCapture(myrtmp_addr)
 
+        while (True):
+            ret, image = cap.read()
 
-# image = cv2.imread('../input/fruits-360/Test/Guava/30_100.jpg')
-# image = image[...,::-1].astype(np.float32)
-#
-# model = load_model('model.h5')
-#
-# image = cv2.resize(image,(100,100))
-# image = np.reshape(image,[1,100,100,3])
-# image = np.array(image, dtype=np.float64)
-# image = test_datagen.standardize(image)
-# print(image)
-# prediction = model.predict_classes(image)
-# print(prediction)
-#
-# if isfile('class_indices.npy'):
-#     labels = np.load('class_indices.npy').item()
-#
-# print(labels)
-# labels = dict((v, k) for k, v in labels.items())
-# print(labels)
-# predictions = [labels[k] for k in prediction]
-#
-# print(predictions)
+            image = cv2.resize(image, (100, 100))
+
+            image = image[..., ::-1].astype(np.float64)
+            image = np.reshape(image, [1, 100, 100, 3])
+            image = np.array(image, dtype=np.float64)
+            image = test_datagen.standardize(image)
+
+            prediction_classes = model.predict_classes(image)
+            predictions = [labels[k] for k in prediction_classes]
+
+            if last_prediction != predictions[0]:
+                print('update prediction to ' + predictions[0])
+                db.streams.update_one(
+                    {'name': message['name']},
+                    {'$set': {'prediction': predictions[0]}},
+                    upsert=True,
+                )
+                last_prediction = predictions[0]
+        # When everything done, release the capture
+        cap.release()
+        cv2.destroyAllWindows()
+
+        print(" [x] Done")
+
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(queue='streams', on_message_callback=predict)
+
+channel.start_consuming()
