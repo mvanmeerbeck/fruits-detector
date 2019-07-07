@@ -3,16 +3,20 @@ from keras.models import load_model
 import numpy as np
 import cv2
 from keras.preprocessing.image import ImageDataGenerator
+import rootpath
+
+print(rootpath.detect())
+path = rootpath.detect()
 
 test_datagen = ImageDataGenerator(rescale=1. / 255)
-myrtmp_addr = "rtmp://localhost:1935/live/test"
+myrtmp_addr = "rtmp://nginx:1935/stream/test"
 
 cap = cv2.VideoCapture(myrtmp_addr)
 
-model = load_model('model.h5')
+model = load_model(path + '/src/model.h5')
 
-if isfile('class_indices.npy'):
-    labels = np.load('class_indices.npy', allow_pickle=True).item()
+if isfile(path + '/src/class_indices.npy'):
+    labels = np.load(path + '/src/class_indices.npy', allow_pickle=True).item()
 
 labels = dict((v, k) for k, v in labels.items())
 

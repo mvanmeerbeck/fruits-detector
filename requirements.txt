@@ -5,3 +5,7 @@ scipy
 opencv-python
 pandas
 Flask
+pymongo
+pika
+supervisor
+rootpath

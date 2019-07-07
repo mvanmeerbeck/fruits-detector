@@ -1,12 +1,13 @@
 version: '3.7'
 services:
     nginx:
-        image: tiangolo/nginx-rtmp
+        image: fruits-detector/nginx-rtmp
         build:
-          context: ./
-          dockerfile: ./docker/NginxRTMPDockerfile
+            context: ./
+            dockerfile: ./docker/NginxRTMPDockerfile
         ports:
             - 1935:1935
+            - 8080:80
     api:
         image: fruits-detector/api
         build:
@@ -14,3 +15,18 @@ services:
             dockerfile: ./docker/ApiDockerfile
         ports:
             - 5000:5000
+    detector:
+        image: fruits-detector/detector
+        build:
+            context: ./
+            dockerfile: ./docker/DetectorDockerfile
+    mongo:
+        image: mongo
+        restart: always
+        ports:
+            - 27017:27017
+    rabbitmq:
+        image: rabbitmq:3-management
+        restart: always
+        ports:
+            - 15672:15672
