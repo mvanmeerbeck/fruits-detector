@@ -3,23 +3,25 @@ services:
     nginx:
         image: fruits-detector/nginx-rtmp
         build:
-            context: ./
-            dockerfile: ./docker/NginxRTMPDockerfile
+            context: ./nginx-rtmp
+            dockerfile: Dockerfile
         ports:
             - 1935:1935
             - 8080:80
     api:
         image: fruits-detector/api
         build:
-            context: ./
-            dockerfile: ./docker/ApiDockerfile
+            context: ./api
+            dockerfile: Dockerfile
         ports:
             - 5000:5000
     detector:
         image: fruits-detector/detector
         build:
-            context: ./
-            dockerfile: ./docker/DetectorDockerfile
+            context: ./detector
+            dockerfile: Dockerfile
+        volumes:
+           - ./detector/input:/usr/src/app/input
     mongo:
         image: mongo
         restart: always
