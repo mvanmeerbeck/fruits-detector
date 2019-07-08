@@ -22,6 +22,13 @@ services:
             dockerfile: Dockerfile
         volumes:
            - ./detector/input:/usr/src/app/input
+    front:
+        image: fruits-detector/front
+        build:
+            context: ./front
+            dockerfile: Dockerfile
+        ports:
+            - 80:8080
     mongo:
         image: mongo
         restart: always

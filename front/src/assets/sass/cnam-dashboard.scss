@@ -1,0 +1,99 @@
+
+/*
+ =========================================================
+ * Black Dashboard - v1.0.0
+ =========================================================
+
+ * Product Page: https://www.creative-tim.com/product/cnam-dashboard
+ * Copyright 2018 Creative Tim (http://www.creative-tim.com)
+
+
+ =========================================================
+
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ */
+
+ // Core
+
+@import "cnam-dashboard/custom/functions";
+@import "cnam-dashboard/bootstrap/functions";
+
+@import "cnam-dashboard/custom/variables";
+@import "cnam-dashboard/bootstrap/variables";
+
+@import "cnam-dashboard/custom/mixins";
+@import "cnam-dashboard/bootstrap/mixins";
+
+ // Bootstrap components
+
+@import "cnam-dashboard/bootstrap/root";
+@import "cnam-dashboard/bootstrap/reboot";
+@import "cnam-dashboard/bootstrap/type";
+@import "cnam-dashboard/bootstrap/images";
+@import "cnam-dashboard/bootstrap/code";
+@import "cnam-dashboard/bootstrap/grid";
+@import "cnam-dashboard/bootstrap/tables";
+@import "cnam-dashboard/bootstrap/forms";
+@import "cnam-dashboard/bootstrap/buttons";
+@import "cnam-dashboard/bootstrap/transitions";
+@import "cnam-dashboard/bootstrap/dropdown";
+@import "cnam-dashboard/bootstrap/button-group";
+@import "cnam-dashboard/bootstrap/input-group";
+@import "cnam-dashboard/bootstrap/custom-forms";
+@import "cnam-dashboard/bootstrap/nav";
+@import "cnam-dashboard/bootstrap/navbar";
+@import "cnam-dashboard/bootstrap/card";
+@import "cnam-dashboard/bootstrap/breadcrumb";
+@import "cnam-dashboard/bootstrap/pagination";
+@import "cnam-dashboard/bootstrap/badge";
+@import "cnam-dashboard/bootstrap/jumbotron";
+@import "cnam-dashboard/bootstrap/alert";
+@import "cnam-dashboard/bootstrap/progress";
+@import "cnam-dashboard/bootstrap/media";
+@import "cnam-dashboard/bootstrap/list-group";
+@import "cnam-dashboard/bootstrap/close";
+@import "cnam-dashboard/bootstrap/modal";
+@import "cnam-dashboard/bootstrap/tooltip";
+@import "cnam-dashboard/bootstrap/popover";
+@import "cnam-dashboard/bootstrap/carousel";
+@import "cnam-dashboard/bootstrap/utilities";
+@import "cnam-dashboard/bootstrap/print";
+
+ // Custom components
+
+ @import "cnam-dashboard/custom/alerts.scss";
+ @import "cnam-dashboard/custom/buttons.scss";
+ @import "cnam-dashboard/custom/dropdown.scss";
+ @import "cnam-dashboard/custom/footer.scss";
+ @import "cnam-dashboard/custom/forms.scss";
+ @import "cnam-dashboard/custom/images.scss";
+ @import "cnam-dashboard/custom/modal.scss";
+ @import "cnam-dashboard/custom/navbar.scss";
+ @import "cnam-dashboard/custom/type.scss";
+ @import "cnam-dashboard/custom/tables";
+ @import "cnam-dashboard/custom/checkboxes-radio";
+ @import "cnam-dashboard/custom/fixed-plugin";
+ @import "cnam-dashboard/custom/sidebar-and-main-panel.scss";
+ @import "cnam-dashboard/custom/misc.scss";
+ @import "cnam-dashboard/custom/rtl.scss";
+ @import "cnam-dashboard/custom/input-group.scss";
+
+
+ // Vendor / Plugins
+
+@import "cnam-dashboard/custom/vendor/plugin-perfect-scrollbar.scss";
+@import "cnam-dashboard/custom/vendor/plugin-animate-bootstrap-notify.scss";
+
+// light mode
+
+@import "cnam-dashboard/custom/white-content.scss";
+
+// Cards
+
+@import 'cnam-dashboard/custom/card';
+@import "cnam-dashboard/custom/cards/card-chart";
+@import "cnam-dashboard/custom/cards/card-map";
+@import "cnam-dashboard/custom/cards/card-user";
+@import "cnam-dashboard/custom/cards/card-task";
+@import "cnam-dashboard/custom/cards/card-plain";
