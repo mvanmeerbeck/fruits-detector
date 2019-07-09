@@ -26,7 +26,7 @@
     mounted() {
       var video = this.$refs.video;
       var hls = new Hls();
-      hls.loadSource('https://content.jwplatform.com/manifests/yp34SRmf.m3u8');
+      hls.loadSource('http://localhost:8080/live/test.m3u8');
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED,function() {
         video.play();
