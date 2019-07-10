@@ -1,11 +1,14 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from flask import render_template
 from pymongo import MongoClient
 import pika
 import json
+from bson.json_util import dumps
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 client = MongoClient('mongodb://mongo:27017/')
 db = client.fruitsdetector
 
@@ -59,6 +62,16 @@ def done():
 def index():
     return render_template('index.html')
 
+@app.route('/streams', methods=['GET'])
+def streams():
+    streams = dumps(db.streams.find())
+
+    # streams = [
+    #     {'name': 'toto'},
+    #     {'name': 'titi'},
+    # ]
+
+    return streams
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
