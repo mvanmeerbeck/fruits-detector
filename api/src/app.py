@@ -66,12 +66,13 @@ def index():
 def streams():
     streams = dumps(db.streams.find())
 
-    # streams = [
-    #     {'name': 'toto'},
-    #     {'name': 'titi'},
-    # ]
-
     return streams
+
+@app.route('/streams/<name>', methods=['GET'])
+def stream(name):
+    stream = dumps(db.streams.find_one({'name': name}))
+
+    return stream
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

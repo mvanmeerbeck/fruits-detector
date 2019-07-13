@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import DashboardLayout from '../layout/starter/SampleLayout.vue';
-import Starter from '../layout/starter/SamplePage.vue';
+import DashboardLayout from '../layout/streams/SampleLayout.vue';
+import List from '../layout/streams/List.vue';
+import Stream from '../layout/streams/Stream.vue';
 
 Vue.use(Router);
 
@@ -16,8 +17,13 @@ export default new Router({
         {
           path: 'streams',
           name: 'streams',
-          components: { default: Starter }
-        }
+          components: { default: List }
+        },
+        {
+          path: 'streams/:name',
+          name: 'stream',
+          components: { default: Stream }
+        },
       ]
     }
   ]

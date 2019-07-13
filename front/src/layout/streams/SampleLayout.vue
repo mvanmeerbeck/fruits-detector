@@ -2,7 +2,7 @@
   <div class="wrapper">
     <side-bar>
       <template slot="links">
-        <sidebar-link to="/dashboard" :name="$t('sidebar.streams')" icon="tim-icons icon-video-66"/>
+        <sidebar-link to="/streams" :name="$t('sidebar.streams')" icon="tim-icons icon-video-66"/>
       </template>
     </side-bar>
     <div class="main-panel">
