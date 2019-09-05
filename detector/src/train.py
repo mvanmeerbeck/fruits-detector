@@ -1,10 +1,13 @@
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential, Model
-from keras.layers import Conv2D, MaxPooling2D, np
-from keras.layers import Activation, Dropout, Flatten, Dense, GlobalAveragePooling2D
-from keras import backend as K
 import pandas as pd
-from keras.applications.inception_v3 import InceptionV3
+from keras import backend as K
+from keras.applications.resnet50 import ResNet50
+from keras.applications.xception import Xception
+from keras.layers import Dense, GlobalAveragePooling2D
+from keras.layers import np
+from keras.models import Model
+from keras.optimizers import SGD
+from keras.preprocessing.image import ImageDataGenerator
+import tensorflow as tf
 
 # dimensions of our images.
 img_width, img_height = 100, 100
@@ -13,7 +16,7 @@ train_data_dir = '../input/fruits-360/Training'
 validation_data_dir = '../input/fruits-360/Test'
 nb_train_samples = 56781
 nb_validation_samples = 19053
-epochs = 16
+epochs = 5
 batch_size = 32
 
 if K.image_data_format() == 'channels_first':
@@ -21,59 +24,22 @@ if K.image_data_format() == 'channels_first':
 else:
     input_shape = (img_width, img_height, 3)
 
-# create the base pre-trained model
-base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=input_shape)
+base_model = Xception(include_top=False, input_shape = input_shape)
 
 # add a global spatial average pooling layer
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
 # let's add a fully-connected layer
-x = Dense(1024, activation='relu')(x)
+x = Dense(512, activation='relu')(x)
 # and a logistic layer -- let's say we have 200 classes
 predictions = Dense(111, activation='softmax')(x)
 
 # this is the model we will train
 model = Model(inputs=base_model.input, outputs=predictions)
 
-# first: train only the top layers (which were randomly initialized)
-# i.e. freeze all convolutional InceptionV3 layers
-for layer in base_model.layers:
-    layer.trainable = False
-
-# compile the model (should be done *after* setting layers to non-trainable)
-model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
-
-
-
-# model = Sequential()
-#
-# model.add(base_model)
-# model.add(GlobalAveragePooling2D())
-
-# model.add(Conv2D(filters=16, kernel_size=2, input_shape=input_shape, padding='same'))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=2))
-#
-# model.add(Conv2D(filters=32, kernel_size=2, activation='relu', padding='same'))
-# model.add(MaxPooling2D(pool_size=2))
-#
-# model.add(Conv2D(filters=64, kernel_size=2, activation='relu', padding='same'))
-# model.add(MaxPooling2D(pool_size=2))
-#
-# model.add(Conv2D(filters=128, kernel_size=2, activation='relu', padding='same'))
-# model.add(MaxPooling2D(pool_size=2))
-#
-# model.add(Dropout(0.3))
-# model.add(Flatten())
-# model.add(Dense(150))
-# model.add(Activation('relu'))
-# model.add(Dropout(0.4))
-# model.add(Dense(111, activation='softmax'))
-# model.summary()
-#
-# model.compile(loss='categorical_crossentropy',
-#               optimizer='rmsprop',
-#               metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',
+              optimizer=SGD(lr=1e-4, momentum=0.9),
+              metrics=['accuracy'])
 
 # this is the augmentation configuration we will use for training
 train_datagen = ImageDataGenerator(
@@ -102,42 +68,6 @@ validation_generator = test_datagen.flow_from_directory(
     class_mode='categorical',
     seed=42)
 
-model.fit_generator(
-    train_generator,
-    steps_per_epoch=nb_train_samples // batch_size,
-    epochs=epochs,
-    validation_data=validation_generator,
-    validation_steps=nb_validation_samples // batch_size)
-
-
-# at this point, the top layers are well trained and we can start fine-tuning
-# convolutional layers from inception V3. We will freeze the bottom N layers
-# and train the remaining top layers.
-
-# let's visualize layer names and layer indices to see how many layers
-# we should freeze:
-for i, layer in enumerate(base_model.layers):
-   print(i, layer.name)
-
-# we chose to train the top 2 inception blocks, i.e. we will freeze
-# the first 249 layers and unfreeze the rest:
-for layer in model.layers[:249]:
-   layer.trainable = False
-for layer in model.layers[249:]:
-   layer.trainable = True
-
-# we need to recompile the model for these modifications to take effect
-# we use SGD with a low learning rate
-from keras.optimizers import SGD
-model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
-
-model.fit_generator(
-    train_generator,
-    steps_per_epoch=nb_train_samples // batch_size,
-    epochs=epochs,
-    validation_data=validation_generator,
-    validation_steps=nb_validation_samples // batch_size)
-
 test_generator = test_datagen.flow_from_directory(
     validation_data_dir,
     target_size=(img_width, img_height),
@@ -145,6 +75,14 @@ test_generator = test_datagen.flow_from_directory(
     class_mode=None,
     shuffle=False,
     seed=42)
+
+with tf.device("/device:GPU:0"):
+    model.fit_generator(
+        train_generator,
+        steps_per_epoch=nb_train_samples // batch_size,
+        epochs=epochs,
+        validation_data=validation_generator,
+        validation_steps=nb_validation_samples // batch_size)
 
 test_generator.reset()
 
