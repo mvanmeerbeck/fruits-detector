@@ -40,3 +40,6 @@ Check the result with VLC via "Open Network Stream" with the address
 - installation env python (docker, requirements)
 - premier tests chargement des données, training
 - init du script de prédiction "real time"
+
+### 05/09
+- test du model inceptionv3
