@@ -4,7 +4,6 @@ services:
         image: fruits-detector/nginx-rtmp
         build:
             context: ./nginx-rtmp
-            dockerfile: Dockerfile
         ports:
             - 1935:1935
             - 8080:80
@@ -12,21 +11,18 @@ services:
         image: fruits-detector/api
         build:
             context: ./api
-            dockerfile: Dockerfile
         ports:
             - 5000:5000
     detector:
         image: fruits-detector/detector
         build:
             context: ./detector
-            dockerfile: Dockerfile
         volumes:
            - ./detector/input:/usr/src/app/input
     front:
         image: fruits-detector/front
         build:
             context: ./front
-            dockerfile: Dockerfile
         ports:
             - 80:8080
     mongo:
