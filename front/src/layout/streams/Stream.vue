@@ -42,7 +42,7 @@
       const video = this.$refs.video;
       const hls = new Hls();
 
-      hls.loadSource('http://localhost:8080/live/' + this.$route.params.name + '.m3u8');
+      hls.loadSource('http://fruits-detector.com:8080/live/' + this.$route.params.name + '.m3u8');
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED,function() {
         video.play();
@@ -52,7 +52,7 @@
       pollData () {
         this.polling = setInterval(() => {
           axios
-            .get('http://localhost:5000/streams/' + this.$route.params.name)
+            .get('http://fruits-detector.com:5000/streams/' + this.$route.params.name)
             .then(response => {
               this.stream = response.data;
             });

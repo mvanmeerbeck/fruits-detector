@@ -2,6 +2,9 @@ version: '3.7'
 services:
     nginx:
         image: fruits-detector/nginx-rtmp
+        restart: always
+        depends_on:
+          - api
         build:
             context: ./nginx-rtmp
         ports:
@@ -9,18 +12,29 @@ services:
             - 8080:80
     api:
         image: fruits-detector/api
+        restart: always
+        depends_on:
+          - mongo
+          - rabbitmq
         build:
             context: ./api
         ports:
             - 5000:5000
     detector:
         image: fruits-detector/detector
+        restart: always
+        depends_on:
+          - rabbitmq
+          - nginx
         build:
             context: ./detector
-        volumes:
-           - ./detector/input:/usr/src/app/input
+#        volumes:
+#           - ./detector/input:/usr/src/app/input
     front:
         image: fruits-detector/front
+        restart: always
+        depends_on:
+          - api
         build:
             context: ./front
         ports:

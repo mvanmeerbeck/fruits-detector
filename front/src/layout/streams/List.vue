@@ -29,7 +29,7 @@
     },
     mounted() {
       axios
-        .get('http://localhost:5000/streams')
+        .get('http://fruits-detector.com:5000/streams')
         .then(response => {
           this.streams = response.data
         });
