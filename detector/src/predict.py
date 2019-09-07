@@ -22,7 +22,7 @@ channel.queue_declare(queue='streams', durable=True)
 model = load_model(path + '/output/model.h5')
 
 if isfile(path + '/output/class_indices.npy'):
-    labels = np.load(path + '/src/class_indices.npy', allow_pickle=True).item()
+    labels = np.load(path + '/output/class_indices.npy', allow_pickle=True).item()
 
 labels = dict((v, k) for k, v in labels.items())
 
