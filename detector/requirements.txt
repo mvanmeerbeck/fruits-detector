@@ -8,3 +8,4 @@ pymongo
 pika
 supervisor
 rootpath
+pydot

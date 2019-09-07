@@ -1,21 +1,14 @@
 import pandas as pd
-from keras import backend as K
-from keras.applications.resnet50 import ResNet50
-from keras.applications.xception import Xception
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras.layers import np
-from keras.models import Model
-from keras.optimizers import SGD
+from keras import backend as K, Sequential
+from keras.layers import np, Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
 from keras.preprocessing.image import ImageDataGenerator
 import tensorflow as tf
+from keras.utils import plot_model
+import matplotlib.pyplot as plt
 
-# dimensions of our images.
 img_width, img_height = 100, 100
-
 train_data_dir = '../input/fruits-360/Training'
-validation_data_dir = '../input/fruits-360/Test'
-nb_train_samples = 56781
-nb_validation_samples = 19053
+test_data_dir = '../input/fruits-360/Test'
 epochs = 5
 batch_size = 32
 
@@ -24,83 +17,104 @@ if K.image_data_format() == 'channels_first':
 else:
     input_shape = (img_width, img_height, 3)
 
-base_model = Xception(include_top=False, input_shape = input_shape)
-
-# add a global spatial average pooling layer
-x = base_model.output
-x = GlobalAveragePooling2D()(x)
-# let's add a fully-connected layer
-x = Dense(512, activation='relu')(x)
-# and a logistic layer -- let's say we have 200 classes
-predictions = Dense(111, activation='softmax')(x)
-
-# this is the model we will train
-model = Model(inputs=base_model.input, outputs=predictions)
-
-model.compile(loss='categorical_crossentropy',
-              optimizer=SGD(lr=1e-4, momentum=0.9),
-              metrics=['accuracy'])
-
-# this is the augmentation configuration we will use for training
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
     zoom_range=0.2,
-    horizontal_flip=True)
-
-# this is the augmentation configuration we will use for testing:
-# only rescaling
-test_datagen = ImageDataGenerator(rescale=1. / 255)
+    horizontal_flip=True,
+    validation_split=0.2)
 
 train_generator = train_datagen.flow_from_directory(
     train_data_dir,
     target_size=(img_width, img_height),
     batch_size=batch_size,
     class_mode='categorical',
-    seed=42)
+    subset='training')
 
-np.save('class_indices', train_generator.class_indices)
-
-validation_generator = test_datagen.flow_from_directory(
-    validation_data_dir,
-    target_size=(img_width, img_height),
+validation_generator = train_datagen.flow_from_directory(
+    train_data_dir,
+    target_size=(img_height, img_width),
     batch_size=batch_size,
     class_mode='categorical',
-    seed=42)
+    subset='validation')
 
+test_datagen = ImageDataGenerator(rescale=1. / 255)
 test_generator = test_datagen.flow_from_directory(
-    validation_data_dir,
+    test_data_dir,
     target_size=(img_width, img_height),
     batch_size=1,
-    class_mode=None,
-    shuffle=False,
-    seed=42)
+    class_mode='categorical',
+    shuffle=False)
+
+model = Sequential()
+model.add(Conv2D(filters=16, kernel_size=2, input_shape=input_shape, padding='same'))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Conv2D(filters=32, kernel_size=2, activation='relu', padding='same'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Conv2D(filters=64, kernel_size=2, activation='relu', padding='same'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Conv2D(filters=128, kernel_size=2, activation='relu', padding='same'))
+model.add(MaxPooling2D(pool_size=2))
+model.add(Dropout(0.3))
+model.add(Flatten())
+model.add(Dense(150))
+model.add(Activation('relu'))
+model.add(Dropout(0.4))
+model.add(Dense(111, activation='softmax'))
+
+model.compile(loss='categorical_crossentropy',
+              optimizer='rmsprop',
+              metrics=['accuracy'])
+
+plot_model(model, to_file='../output/model.png')
 
 with tf.device("/device:GPU:0"):
-    model.fit_generator(
+    history = model.fit_generator(
         train_generator,
-        steps_per_epoch=nb_train_samples // batch_size,
+        steps_per_epoch=train_generator.n // batch_size,
         epochs=epochs,
         validation_data=validation_generator,
-        validation_steps=nb_validation_samples // batch_size)
+        validation_steps=validation_generator.n // batch_size)
 
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('../output/accuracy.png')
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('../output/loss.png')
+
+print("evaluation time")
+evaluation = model.evaluate_generator(test_generator, steps=test_generator.n // test_generator.batch_size, verbose=1)
+
+print(evaluation)
+
+print("prediction time")
 test_generator.reset()
 
 pred = model.predict_generator(
     test_generator,
-    steps=test_generator.n//test_generator.batch_size,
+    steps=test_generator.n // test_generator.batch_size,
     verbose=1)
 
 predicted_class_indices = np.argmax(pred, axis=1)
 
 labels = (train_generator.class_indices)
-
 labels = dict((v, k) for k, v in labels.items())
-
 predictions = [labels[k] for k in predicted_class_indices]
 
 filenames = test_generator.filenames
 results = pd.DataFrame({"Filename": filenames, "Predictions": predictions})
-results.to_csv("results.csv", index=False)
+results.to_csv("../output/results.csv", index=False)
 
-model.save('model.h5')
+np.save('../output/class_indices', train_generator.class_indices)
+model.save('../output/model.h5')
