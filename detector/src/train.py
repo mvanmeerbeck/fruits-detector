@@ -1,15 +1,14 @@
 import os
+from contextlib import redirect_stdout
 from datetime import datetime
 
-import pandas as pd
-from keras import backend as K, Sequential
-from keras.layers import np, Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense, BatchNormalization, \
-    AveragePooling2D
-from keras.preprocessing.image import ImageDataGenerator
-import tensorflow as tf
-from keras.utils import plot_model
 import matplotlib.pyplot as plt
-from contextlib import redirect_stdout
+import pandas as pd
+import tensorflow as tf
+from keras import backend as K, Sequential
+from keras.layers import np, Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense, BatchNormalization
+from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import plot_model
 
 img_width, img_height = 100, 100
 train_data_dir = '../input/fruits-360/Training'
