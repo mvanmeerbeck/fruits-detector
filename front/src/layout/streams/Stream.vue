@@ -4,7 +4,7 @@
       <div class="col-lg-8">
         <div class="card card-chart">
           <div v-if="stream" class="card-header">
-            <h5 class="card-category">Stream</h5>
+            <div class="notification d-none d-lg-block d-xl-block" v-if="stream.play"></div>
             <h3 class="card-title"><i class="tim-icons icon-video-66 text-primary"></i>{{ stream.name }}</h3>
           </div>
           <div class="card-body">

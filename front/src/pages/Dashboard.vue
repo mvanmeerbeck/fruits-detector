@@ -105,9 +105,9 @@
                            aria-label="Settings menu"
                            :class="{'float-left': isRTL}">
               <i slot="title" class="tim-icons icon-settings-gear-63"></i>
-              <a class="dropdown-item" href="#pablo">{{$t('dashboard.dropdown.action')}}</a>
-              <a class="dropdown-item" href="#pablo">{{$t('dashboard.dropdown.anotherAction')}}</a>
-              <a class="dropdown-item" href="#pablo">{{$t('dashboard.dropdown.somethingElse')}}</a>
+              <a class="dropdown-item" href="/">{{$t('dashboard.dropdown.action')}}</a>
+              <a class="dropdown-item" href="/">{{$t('dashboard.dropdown.anotherAction')}}</a>
+              <a class="dropdown-item" href="/">{{$t('dashboard.dropdown.somethingElse')}}</a>
             </base-dropdown>
           </template>
           <div class="table-full-width table-responsive">

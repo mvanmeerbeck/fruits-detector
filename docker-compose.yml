@@ -44,8 +44,14 @@ services:
         restart: always
         ports:
             - 27017:27017
+        volumes:
+            - mongodb:/data/db
+            - mongodb_config:/data/configdb
     rabbitmq:
         image: rabbitmq:3-management
         restart: always
         ports:
             - 15672:15672
+volumes:
+    mongodb:
+    mongodb_config:

@@ -1,3 +1,4 @@
+import pymongo
 from flask import Flask, jsonify
 from flask import request
 from flask import render_template
@@ -64,7 +65,7 @@ def index():
 
 @app.route('/streams', methods=['GET'])
 def streams():
-    streams = dumps(db.streams.find())
+    streams = dumps(db.streams.find().sort("play", pymongo.DESCENDING))
 
     return streams
 
