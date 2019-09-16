@@ -42,6 +42,7 @@ def predict(ch, method, properties, body):
         test_datagen = ImageDataGenerator(rescale=1. / 255)
         myrtmp_addr = "rtmp://nginx:1935/stream/" + message['name']
         last_prediction = ''
+        proba = 0.2
 
         cap = cv2.VideoCapture(myrtmp_addr)
 
@@ -56,10 +57,16 @@ def predict(ch, method, properties, body):
                 image = np.array(image, dtype=np.float64)
                 image = test_datagen.standardize(image)
 
+                prediction_proba = model.predict_proba(image)
                 prediction_classes = model.predict_classes(image)
                 predictions = [labels[k] for k in prediction_classes]
 
-                if last_prediction != predictions[0]:
+                if last_prediction != predictions[0] and prediction_proba[0][prediction_classes] > proba:
+                    print(prediction_proba)
+                    print(prediction_classes)
+                    print(predictions)
+                    print(prediction_proba[0][prediction_classes])
+
                     print('update prediction to ' + predictions[0])
                     db.streams.update_one(
                         {'name': message['name']},

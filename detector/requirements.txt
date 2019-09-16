@@ -2,7 +2,7 @@ Keras
 tensorflow
 Pillow
 scipy
-opencv-python
+opencv-python==4.1.0.25
 pandas
 pymongo
 pika
