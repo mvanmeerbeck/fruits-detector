@@ -7,13 +7,13 @@ Real time, scalable fruits detector
 - Docker
 - Docker-compose
 
-## Install
+## Install
 ### RTMP Camera
 Install the android application RTMP Camera
 
 https://play.google.com/store/apps/details?id=com.miv.rtmpcamera&hl=fr
 
-## Start
+## Start
 
 Start the containers
 
@@ -25,11 +25,11 @@ Find your IP address
 
 Open the RTMP Camera on your smartphone and change the RTMP server in Options > Publish address to
 
-```rtmp://your-ip/live```
+```rtmp://your-ip:1935/stream```
 
 Check the result with VLC via "Open Network Stream" with the address
 
-```rtmp://your-ip/live```
+```rtmp://your-ip:1935/stream```
 
 ## log
 ### 29/06
